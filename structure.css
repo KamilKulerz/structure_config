@@ -1,0 +1,53 @@
+ :root {
+    --bs-a: #B7D1CF;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: #262626;
+}
+
+.row {
+    align-items: center;
+}
+
+.card-footer {
+    transition: height 2s linear;
+}
+
+.easing {
+    animation: ball 0.25s ease-out
+}
+
+.easing-out {
+    animation: ball-out 0.2s ease-out
+}
+
+@keyframes ball {
+    100% {
+        transform: translateY(0);
+    }
+    0% {
+        transform: translateY(-100px);
+        opacity: 0%;
+    }
+}
+
+@keyframes ball-out {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-100px);
+        opacity: 0%;
+    }
+}
+
+.border-a {
+    border-color: var(--bs-a)!important;
+}
+
+.my-input {
+    background: #424242;
+    color: white;
+}

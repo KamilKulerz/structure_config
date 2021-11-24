@@ -1,264 +1,81 @@
 <html>
 
-<head>
+    <head>
 
-<!-- Font Awesome -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" />
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-<!-- <link href="./mdb.min.css" rel="stylesheet" /> -->
-<link href="./mdb.dark.min.css" rel="stylesheet" />
-
-
-<!-- MDB -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.0/mdb.min.js"></script>
-
-    <style>
-
-:root{
-    --bs-a: #B7D1CF;
-}
-
-body{
-    font-family: 'Roboto', sans-serif;
-    background: #262626;
-}
-
-.row{
-    align-items: center;
-}
-
-.card-footer {
-    transition: height 2s linear;
-}
-
-.easing {
-    animation: ball 0.25s ease-out
-}
-.easing-out {
-    animation: ball-out 0.2s ease-out
-}
-
-@keyframes ball {
-    100% {
-        transform: translateY(0);
-    }
-    0% {
-        transform: translateY(-100px);
-        opacity: 0%;
-    }
-}
-@keyframes ball-out {
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(-100px);
-        opacity: 0%;
-    }
-}
-
-.border-a{
-    border-color: var(--bs-a)!important;
-}
-
-.my-input{
-    background: #424242;
-    color: white;
-}
-
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- <link href="./mdb.min.css" rel="stylesheet" /> -->
+    <link href="./mdb.dark.min.css" rel="stylesheet" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.0/mdb.min.js"></script>
+    <script type="text/javascript" src="./structure.js"></script>
+    <link href="./structure.css" rel="stylesheet" />
 
 
-</head>
+
+    </head>
 
 
-<body>
-    <form>
-        <button type="submit" class="btn btn-primary btn-block">Confirm</button>
-        <div class="container">
+    <body>
+        <form>
+            <button type="submit" class="btn btn-primary btn-block">Confirm</button>
+            <div class="container">
 
-            <div class="card bg-dark border">
-                <div class="card-header">Structure definition</div>
-                <div class="card-body"></div>
-                <div class="card-footer">
-                    <button class="btn btn-sm btn-warning" onclick="addCard(this)">+</button>
-                    <div class="card border border-a m-3 shadow-strong-5 easing">
-                        <div class="card-header pb-1 pt-1">
-                            <div class="row">
-                                <div class="col-4">
-                                        <input required class="form-control" type="text" placeholder="Type Name">
-                                </div>
-                                <div class="col-7">
-                                    
-                                </div>
-                                <div class="col-1">
-                                    <button class="btn btn-sm btn-danger" onclick="removeCard(this)">-</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body pb-1 pt-1">
-                            <div class="row">
-                                <div class="col-4">
-                                    <p class="m-2">Icon</p>
-                                </div>
-                                <div class="col-4">
-                                    <div class="btn-group" role="group">
-                                        <input class="btn-check" type="radio" id="web" name="type"
-                                            onchange="changeCheck(this)">
-                                        <label class="btn btn-secondary" for="web">web</label>
-                                        <input class="btn-check" type="radio" id="file" name="type"
-                                            onchange="changeCheck(this)">
-                                        <label class="btn btn-secondary" for="file">file</label>
-                                        <input class="btn-check" type="radio" id="fileList" name="type"
-                                            onchange="changeCheck(this)">
-                                        <label class="btn btn-secondary" for="fileList">fileList</label>
+                <div class="card bg-dark border">
+                    <div class="card-header">Structure definition</div>
+                    <div class="card-body"></div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-warning" onclick="addCard(this)">+</button>
+                        <div class="card border border-a m-3 shadow-strong-5 easing">
+                            <div class="card-header pb-1 pt-1">
+                                <div class="row">
+                                    <div class="col-4">
+                                            <input required class="form-control" type="text" placeholder="Type Name">
+                                    </div>
+                                    <div class="col-7">
+                                        
+                                    </div>
+                                    <div class="col-1">
+                                        <button class="btn btn-sm btn-danger" onclick="removeCard(this)">-</button>
                                     </div>
                                 </div>
                             </div>
+                            <div class="card-body pb-1 pt-1">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <p class="m-2">Icon</p>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="btn-group" role="group">
+                                            <input class="btn-check" type="radio" id="web" name="type"
+                                                onchange="changeCheck(this)">
+                                            <label class="btn btn-secondary" for="web">web</label>
+                                            <input class="btn-check" type="radio" id="file" name="type"
+                                                onchange="changeCheck(this)">
+                                            <label class="btn btn-secondary" for="file">file</label>
+                                            <input class="btn-check" type="radio" id="fileList" name="type"
+                                                onchange="changeCheck(this)">
+                                            <label class="btn btn-secondary" for="fileList">fileList</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer pb-1 pt-1"><button class="btn btn-sm btn-info" onclick="addCard(this)">+</button>
+                            </div>
                         </div>
-                        <div class="card-footer pb-1 pt-1"><button class="btn btn-sm btn-info" onclick="addCard(this)">+</button>
-                        </div>
-                    </div>
 
 
-                
-                </div>        
+                    
+                    </div>        
 
+
+                </div>
 
             </div>
+        </form>
 
-        </div>
-    </form>
-
-<script>
-
-//!TODO not finished
-function getStructure(mainElement){
-    let myStructure = []
-    let cond
-    try{
-        cond = mainElement.children[2].children.length
-    } catch {
-        cond = -1
-    }
-    if (cond <= 1){
-        myStructure.push(mainElement.firstElementChild.firstElementChild.firstElementChild.firstElementChild.value)
-        return myStructure
-    } else {
-        Array.from(mainElement.children[2].children).forEach(x => {
-            if (x.nodeName != "BUTTON"){
-                myStructure.push(getStructure(x))
-            }
-
-        })
-    }
-    return myStructure
-}
+ 
 
 
-function editText(x){
-    if (x.nodeName != "INPUT"){
-        x.parentNode.innerHTML = `<input class="form-control" type="text" value="${x.firstElementChild.value.trim()}">`
-    }
-}
-
-
-function changeCheck(x) {
-    console.log(x)
-    if (x.checked == true && x.id.includes("web")){
-        x.parentNode.parentNode.parentNode.parentNode.parentNode.querySelector('.card-footer>button').disabled = true
-    }
-    else{
-        x.parentNode.parentNode.parentNode.parentNode.parentNode.querySelector('.card-footer>button').disabled = false
-
-    }
-
-}
-
-function removeCard(x){
-    x.parentNode.parentNode.parentNode.parentNode.classList.remove('easing')
-    x.parentNode.parentNode.parentNode.parentNode.classList.add('easing-out')
-    setTimeout(() => {
-        x.parentNode.parentNode.parentNode.parentNode.remove()
-    }, 200)
-}
-
-
-function createIconCard(){
-
-    sinceEpoch = new Date().getTime()
-
-    var newCard = document.createElement('div')
-    newCard.className = "card border border-a m-3 shadow-strong-5 easing"
-
-    var newHeader = document.createElement('div')
-    newHeader.className = "card-header pb-1 pt-1"
-    newHeader.innerHTML = `<div class="row">
-                                <div class="col-4">
-                                    <input required class="form-control" type="text" placeholder="Type Name">
-                                </div>
-                                <div class="col-7">
-
-                                </div>
-                                <div class="col-1">
-                                    <button class="btn btn-sm btn-danger" onclick="removeCard(this)">-</button>
-                                </div>
-                            </div>`
-    
-    var newBody = document.createElement('div')
-    newBody.className = "card-body pb-1 pt-1"
-    newBody.innerHTML = `<div class="row">
-                            <div class="col-4">
-                                <p class="m-2">Icon</p>
-                            </div>
-                            <div class="col-4">
-                                    <div class="btn-group" role="group">
-                                        <input class="btn-check" type="radio" id="web-${sinceEpoch}"
-                                            name="type-${sinceEpoch}"
-                                            onchange="changeCheck(this)">
-                                        <label class="btn btn-secondary" for="web-${sinceEpoch}">web</label>
-                                        <input class="btn-check" type="radio" id="file-${sinceEpoch}"
-                                            name="type-${sinceEpoch}"
-                                            onchange="changeCheck(this)">
-                                        <label class="btn btn-secondary" for="file-${sinceEpoch}">file</label>
-                                        <input class="btn-check" type="radio" id="fileList-${sinceEpoch}"
-                                            name="type-${sinceEpoch}"
-                                            onchange="changeCheck(this)">
-                                        <label class="btn btn-secondary" for="fileList-${sinceEpoch}">fileList</label>
-                                    </div>
-                            </div>
-                        </div>`
-    
-    var newFooter = document.createElement('div')
-    newFooter.className = "card-footer pb-1 pt-1"
-    newFooter.innerHTML = `<button class="btn btn-sm btn-info" onclick="addCard(this)">+</button>`
-
-
-    newCard.appendChild(newHeader)
-    newCard.appendChild(newBody)
-    newCard.appendChild(newFooter)
-
-    return newCard
-}
-
-function addCard(x){
-    console.log(x)
-    x.parentNode.appendChild(createIconCard())
-}
-
-function addCardInline(x){
-    x.parentNode.parentNode.childNodes[2].appendChild(createIconCard())
-    //x.parentNode.parentNode.childNodes[1].classList.toggle('animated')
-    //x.parentNode.parentNode.childNodes[1].classList.toggle('fadeInLeft')
-}
-
-
-
-
-</script>
-
-
-</body>
+    </body>
 
 </html>
