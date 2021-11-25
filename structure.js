@@ -1,6 +1,6 @@
 //!TODO not finished
 function getStructure(mainElement) {
-    let myStructure = []
+    let myStructure = {}
     let cond
     try {
         cond = mainElement.children[2].children.length
@@ -8,12 +8,19 @@ function getStructure(mainElement) {
         cond = -1
     }
     if (cond <= 1) {
-        myStructure.push(mainElement.firstElementChild.firstElementChild.firstElementChild.firstElementChild.value)
+
+        // myStructure.push(mainElement.firstElementChild.firstElementChild.firstElementChild.firstElementChild.value)
         return myStructure
     } else {
         Array.from(mainElement.children[2].children).forEach(x => {
             if (x.nodeName != "BUTTON") {
-                myStructure.push(getStructure(x))
+                let mainElementName = x.firstElementChild.firstElementChild.firstElementChild.firstElementChild.value
+                    // myStructure.push([mainElementName, getStructure(x)])
+                myStructure[mainElementName] = {
+                    'name': mainElementName,
+                    'type': 'file',
+                    'children': getStructure(x)
+                }
             }
 
         })
@@ -21,6 +28,10 @@ function getStructure(mainElement) {
     return myStructure
 }
 
+document.querySelector('#my-form').addEventListener('submit', function(e) {
+    e.preventDefault()
+    console.log(getStructure(document.querySelector('.container').children[0]))
+})
 
 function editText(x) {
     if (x.nodeName != "INPUT") {
