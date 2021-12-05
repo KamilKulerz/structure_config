@@ -1,10 +1,25 @@
+@font-face {
+    font-family: "Roboto";
+    src: url('../static/Roboto/Roboto-Medium.ttf') format('truetype');
+    font-weight: 300;
+    /* font-style: normal; */
+}
+
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('../static/fontawesome/webfonts/fa-regular-400.eot');
+    src: url('../static/fontawesome/webfonts/fa-regular-400.eot') format('embedded-opentype'), url('../static/fontawesome/webfonts/fa-regular-400.woff') format('woff'), url('../static/fontawesome/webfonts/fa-regular-400.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
  :root {
     --bs-a: #B7D1CF;
 }
 
 body {
     font-family: 'Roboto', sans-serif;
-    background: #262626;
+    background: #26262600;
 }
 
 .row {
