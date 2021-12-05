@@ -1,92 +1,8 @@
-function translateTopLevel(flatSites) {
-    let stackedSites = {}
-    let secondArray = [...flatSites]
-    for (let x of flatSites) {
-        let insideCard = { 'name': x.name, 'type': x.type, 'url': x.url, 'image': x.image, 'section': x.section, 'children': {} }
-        if (x.section == "top") {
-            stackedSites[x.name] = insideCard
-            secondArray = secondArray.filter(e => e !== x)
-        }
-    }
-    return { stackedSites, secondArray }
-}
-
-function translateFromFlatSites(flatSites) {
-    //! TODO you can do better...
-    let { stackedSites, secondArray } = translateTopLevel(flatSites)
-
-    flatSites = [...secondArray]
-
-    for (let x of flatSites) {
-        if (Object.keys(stackedSites).includes(x.section)) {
-            let insideCard = { 'name': x.name, 'type': x.type, 'url': x.url, 'image': x.image, 'section': x.section, 'children': {} }
-            stackedSites[x.section]['children'][x.name] = insideCard
-            secondArray = secondArray.filter(e => e !== x)
-        }
-    }
-
-    const iterate = (obj, x) => {
-        Object.keys(obj).forEach(key => {
-            if (typeof obj[key] === 'object') {
-                iterate(obj[key], x)
-            } else {
-                if (key == 'name' && obj[key] == x.section) {
-                    let insideCard = { 'name': x.name, 'type': x.type, 'url': x.url, 'image': x.image, 'section': x.section, 'children': {} }
-                    obj.children[x.name] = insideCard
-                    secondArray = secondArray.filter(e => e !== x)
-                }
-            }
-        })
-    }
-
-    let currentLength = flatSites.length
-    let previousLength = flatSites.length
-    while (flatSites.length != 0) {
-        flatSites = [...secondArray]
-        for (let x of flatSites) {
-            iterate(stackedSites, x)
-        }
-        previousLength = currentLength
-        currentLength = flatSites.length
-        if (previousLength == currentLength) {
-            throw new Error(`Could not resolve all sites, check the file for this part: ${JSON.stringify(flatSites)}`)
-        }
-    }
-
-    return stackedSites
-}
-
-
-function makeSlug(inputStr) {
-    return inputStr.replaceAll(' ', '_').toLowerCase()
-}
-
-
-function translateToFlatSites(stackedSites) {
-
-    let flatSites = new Array()
-
-    const iterate = (obj) => {
-        Object.keys(obj).forEach(key => {
-            if (typeof obj[key] === 'object') {
-                if (key != 'children') {
-                    flatSites.push({ 'name': makeSlug(key), 'url': obj[key].url, 'image': obj[key].image, 'title': key, 'zoom': '1', 'type': obj[key].type, 'section': obj[key].section })
-                }
-                iterate(obj[key])
-            }
-        })
-    }
-
-    iterate(stackedSites)
-
-    return flatSites
-}
-
 
 const makeStructure = (obj, baseElement, listOfIconsLocal) => {
     Object.keys(obj).forEach(key => {
         if (typeof obj[key] === 'object') {
-            let card = createIconCard(listOfIconsLocal, obj[key].name, obj[key].type, obj[key].url, obj[key].image)
+            let card = createIconCard(listOfIconsLocal, false, obj[key].title, obj[key].type, obj[key].url, obj[key].image)
             let newBase = baseElement
             if (key != 'children') {
                 baseElement.parentNode.appendChild(card)
@@ -98,44 +14,15 @@ const makeStructure = (obj, baseElement, listOfIconsLocal) => {
 }
 
 
-function getStructure(mainElement) {
-    let myStructure = {}
-    let cond
-    try {
-        cond = mainElement.children[1].children.length
-    } catch {
-        cond = -1
-    }
-    if (cond <= 1) {
-        return myStructure
-    } else {
-        Array.from(mainElement.children[1].children).forEach(x => {
-            if (x.nodeName != "BUTTON") {
-                let mainElementName = x.firstElementChild.firstElementChild.firstElementChild.firstElementChild.value
-                let myType = (x.querySelector('.btn-group>input:disabled') === null) ? x.querySelector('.btn-group>input:checked').id.split('-')[0] : 'tile'
-                let myUrl = x.querySelector('#web-url').value
-                let myImage = x.querySelector('option:checked').value
-                let mySection = (x.parentNode.parentNode.querySelector('#main-structure') === null) ? x.parentNode.parentNode.querySelector('#card-name').value : 'top'
-
-                myStructure[mainElementName] = {
-                    'name': mainElementName,
-                    'type': myType,
-                    'children': getStructure(x),
-                    'url': myUrl,
-                    'image': myImage,
-                    'section': mySection
-                }
-            }
-
-        })
-    }
-    return myStructure
-}
 
 
 function editText(x) {
     if (x.nodeName != "INPUT") {
-        x.parentNode.innerHTML = `<input class="form-control" type="text" value="${x.firstElementChild.value.trim()}">`
+        let editInput = document.createElement('input')
+        editInput.classList.add('form-control')
+        editInput.setAttribute('type', 'text')
+        editInput.setAttribute('value', x.firstElementChild.value.trim())
+        x.parentNode.appendChild(editInput)
     }
 }
 
@@ -166,97 +53,197 @@ function removeCard(x) {
     }, 200)
 }
 
+function addCard(x, listOfIcons) {
+    x.parentNode.appendChild(createIconCard(listOfIcons, true))
+    if (x.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName != "BODY") {
+        x.parentNode.parentElement.firstElementChild.querySelector('.btn-group').querySelectorAll('input').forEach(el => el.disabled = true)
+    }
+}
 
-function createIconCard(iconList, cardName = "", cardType = "file", urlValue = "", iconName = "") {
+function createIconCard(iconList, easing = false, cardName = "", cardType = "file", urlValue = "", iconName = "") {
 
     let sinceEpoch = parseInt(new Date().getTime() * Math.random())
     let isChecked = {
-        "web": "",
-        "file": "",
-        "fileList": ""
+        "web": false,
+        "file": false,
+        "fileList": false
     }
-    let isTile = ""
-    let isUrlDisabled = "disabled"
+    let isTile = false
+    let isUrlDisabled = true
 
     switch (cardType) {
         case "web":
-            isChecked.web = "checked"
-            isUrlDisabled = ""
+            isChecked.web = true
+            isUrlDisabled = false
             break;
         case "tile":
-            isTile = "disabled"
+            isTile = true
             break;
         case "file":
-            isChecked.file = "checked"
+            isChecked.file = true
             break;
         case "fileList":
-            isChecked.fileList = "checked"
+            isChecked.fileList = true
             break;
     }
 
 
     var newCard = document.createElement('div')
-    newCard.className = "card border border-a m-3 shadow-strong-5 easing"
+    newCard.classList.add("card", "border", "border-a", "m-3", "shadow-strong-5")
+    if (easing) {
+        newCard.classList.add("easing")
+    }
 
     var newBody = document.createElement('div')
-    newBody.className = "card-body pb-1 pt-1"
-    newBody.innerHTML = `<div class="row">
-                                <div class="col-2">
-                                    <input id="card-name" required class="form-control" type="text" placeholder="Type Name" value="${cardName}">
-                                </div>
+    newBody.classList.add("card-body", "pb-1", "pt-1")
 
-                                <div id="col-select" class="col-2">
-                                </div>
+    let bodyRow = document.createElement('div')
+    bodyRow.classList.add("row")
 
-                                <div class="col-3">
-                                    <div class="btn-group" role="group">
-                                        <input ${isTile} ${isChecked.web} class="btn-check radio-type" type="radio" id="web-${sinceEpoch}" name="type-${sinceEpoch}">
-                                        <label class="btn btn-secondary" for="web-${sinceEpoch}">web</label>
 
-                                        <input ${isTile} ${isChecked.file} class="btn-check radio-type" type="radio" id="file-${sinceEpoch}" name="type-${sinceEpoch}">
-                                        <label class="btn btn-secondary" for="file-${sinceEpoch}">file</label>
-                                        
-                                        <input ${isTile} ${isChecked.fileList} class="btn-check radio-type" type="radio" id="fileList-${sinceEpoch}" name="type-${sinceEpoch}">
-                                        <label class="btn btn-secondary" for="fileList-${sinceEpoch}">fileList</label>
-                                    </div>
-                                </div>
+    let bodyCol1 = document.createElement('div')
+    let bodyCol2 = document.createElement('div')
+    let bodyCol3 = document.createElement('div')
+    let bodyCol4 = document.createElement('div')
+    let bodyCol5 = document.createElement('div')
 
-                                <div class="col-4">
-                                    <input ${isUrlDisabled} id="web-url" class="form-control" type="text" placeholder="Type URL" value="${urlValue}">
-                                </div>
 
-                                <div class="col-1">
-                                    <button id="remove-button" type="button" class="btn btn-sm btn-danger">-</button>
-                                </div>
-                            </div>`
+    bodyCol1.classList.add("col-2")
+
+    let input1 = document.createElement('input')
+    input1.setAttribute('id', 'card-name')
+    input1.setAttribute('required', true)
+    input1.setAttribute('type', 'text')
+    input1.setAttribute('placeholder', 'Type Name')
+    input1.setAttribute('value', cardName)
+    input1.classList.add('form-control')
+
+    bodyCol1.appendChild(input1)
+
+
+
+    bodyCol2.classList.add("col-2")
+    bodyCol2.setAttribute('id', 'col-select')
+
+    bodyCol3.classList.add("col-3")
+
+
+    let btnGroup = document.createElement('div')
+    btnGroup.classList.add('btn-group')
+    btnGroup.setAttribute('role', 'group')
+
+    let btnInput1 = document.createElement('input')
+    btnInput1.classList.add('btn-check', 'radio-type')
+    btnInput1.disabled = isTile
+    btnInput1.checked = isChecked.web
+    btnInput1.setAttribute('type', 'radio')
+    btnInput1.setAttribute('id', `web-${sinceEpoch}`)
+    btnInput1.setAttribute('name', `type-${sinceEpoch}`)
+    let btnLabel1 = document.createElement('label')
+    btnLabel1.classList.add('btn', 'btn-sm', 'btn-secondary')
+    btnLabel1.setAttribute('for', `web-${sinceEpoch}`)
+    btnLabel1.innerText = "web"
+
+    let btnInput2 = document.createElement('input')
+    btnInput2.classList.add('btn-check', 'radio-type')
+    btnInput2.disabled = isTile
+    btnInput2.checked = isChecked.file
+    btnInput2.setAttribute('type', 'radio')
+    btnInput2.setAttribute('id', `file-${sinceEpoch}`)
+    btnInput2.setAttribute('name', `type-${sinceEpoch}`)
+    let btnLabel2 = document.createElement('label')
+    btnLabel2.classList.add('btn', 'btn-sm', 'btn-secondary')
+    btnLabel2.setAttribute('for', `file-${sinceEpoch}`)
+    btnLabel2.innerText = "file"
+
+    let btnInput3 = document.createElement('input')
+    btnInput3.classList.add('btn-check', 'radio-type')
+    btnInput3.disabled = isTile
+    btnInput3.checked = isChecked.fileList
+    btnInput3.setAttribute('type', 'radio')
+    btnInput3.setAttribute('id', `fileList-${sinceEpoch}`)
+    btnInput3.setAttribute('name', `type-${sinceEpoch}`)
+    let btnLabel3 = document.createElement('label')
+    btnLabel3.classList.add('btn', 'btn-sm', 'btn-secondary')
+    btnLabel3.setAttribute('for', `fileList-${sinceEpoch}`)
+    btnLabel3.innerText = "fileList"
+
+    btnGroup.appendChild(btnInput1)
+    btnGroup.appendChild(btnLabel1)
+    btnGroup.appendChild(btnInput2)
+    btnGroup.appendChild(btnLabel2)
+    btnGroup.appendChild(btnInput3)
+    btnGroup.appendChild(btnLabel3)
+
+
+    bodyCol3.appendChild(btnGroup)
+
+    bodyCol4.classList.add("col-4")
+
+    let input2 = document.createElement('input')
+    input2.setAttribute('id', 'web-url')
+    input2.disabled = isUrlDisabled
+    input2.setAttribute('type', 'text')
+    input2.setAttribute('placeholder', 'Type URL')
+    input2.setAttribute('value', urlValue)
+    input2.classList.add('form-control')
+
+    bodyCol4.appendChild(input2)
+
+
+
+
+
+
+    bodyCol5.classList.add("col-1")
+
+    let button1 = document.createElement('button')
+    button1.setAttribute('id', 'remove-button')
+    button1.setAttribute('type', 'button')
+    button1.classList.add('btn', 'btn-sm', 'btn-danger')
+    button1.innerText = "-"
+
+    bodyCol5.appendChild(button1)
+
+
+
+
+    bodyRow.appendChild(bodyCol1)
+    bodyRow.appendChild(bodyCol2)
+    bodyRow.appendChild(bodyCol3)
+    bodyRow.appendChild(bodyCol4)
+    bodyRow.appendChild(bodyCol5)
+
+    newBody.appendChild(bodyRow)
+
 
     var newSelect = document.createElement('select')
-    newSelect.type = "text"
-    newSelect.className = "form-select text-light bg-dark"
-    newSelect.id = "icon-name"
-    newSelect.value = iconName
+    newSelect.setAttribute('type', 'text')
+    newSelect.classList.add("form-select", "text-light", "bg-dark")
+    newSelect.setAttribute('id', "icon-name")
+    newSelect.setAttribute('value', iconName)
     iconList.forEach(x => {
         let newOption = document.createElement('option')
-        newOption.value = x
+        newOption.setAttribute('value', x)
         newOption.innerText = x
         if (x == iconName) {
-            newOption.selected = true
+            newOption.setAttribute('selected', true)
         }
         newSelect.appendChild(newOption)
     })
     newBody.querySelector('#col-select').appendChild(newSelect)
 
     var newFooter = document.createElement('div')
-    newFooter.className = "card-footer pb-1 pt-1"
+    newFooter.classList.add("card-footer", "pb-1", "pt-1")
 
     var newFooterButton = document.createElement('button')
-    newFooterButton.className = "btn btn-sm btn-info add-button"
-    newFooterButton.type = "button"
+    newFooterButton.classList.add("btn", "btn-sm", "btn-info", "add-button")
+    newFooterButton.setAttribute('type', 'button')
     newFooterButton.innerText = "+"
 
     newFooter.appendChild(newFooterButton)
     newFooter.querySelector('button').addEventListener('click', (e) => {
-        addCard(e.target);
+        addCard(e.target, iconList);
     })
     newBody.querySelector('#remove-button').addEventListener('click', (e) => {
         removeCard(e.target);
@@ -274,132 +261,28 @@ function createIconCard(iconList, cardName = "", cardType = "file", urlValue = "
     return newCard
 }
 
-function addCard(x) {
-    x.parentNode.appendChild(createIconCard(listOfIcons))
-    if (x.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName != "BODY") {
-        x.parentNode.parentElement.firstElementChild.querySelector('.btn-group').querySelectorAll('input').forEach(el => el.disabled = true)
-    }
-}
 
-document.querySelector('#my-form').addEventListener('submit', function(e) {
-    e.preventDefault()
-    console.log('form submit')
-        // e.submit()
-    let stackedStructureResult = getStructure(document.querySelector('.container').children[0])
-    console.log(stackedStructureResult)
-    let flatStructureResult = translateToFlatSites(stackedStructureResult)
-    console.log(flatStructureResult)
 
-})
 
-document.querySelectorAll('.add-button').forEach(x => {
-    x.addEventListener('click', (e) => {
-        addCard(e.target)
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('#my-form').addEventListener('submit', function(e) {
+        e.preventDefault()
+        console.log('form submit')
+            // e.submit()
+        let stackedStructureResult = getStructure(document.querySelector('.container').children[0])
+            // console.log(stackedStructureResult)
+        let flatStructureResult = translateToFlatSites(stackedStructureResult)
+            // console.log(flatStructureResult)
+        ipcRenderer.send('fromConfigList', flatStructureResult)
+
     })
+
+    document.querySelectorAll('.add-button').forEach(x => {
+        x.addEventListener('click', (e) => {
+            addCard(e.target, listOfFileIcons)
+        })
+    })
+
+
+    makeStructure(translateFromFlatSites(flatListOfCards), document.querySelector('.container').lastElementChild.querySelector('.card-footer>button'), listOfIcons)
 })
-
-var listOfIcons = [
-    'icon1.png',
-    'icon2.png',
-    'icon3.png'
-]
-
-var flatListOfCards = [{
-        "name": "card55",
-        "url": "",
-        "image": "icon1.png",
-        "title": "card55",
-        "zoom": "1",
-        "type": "tile",
-        "section": "top"
-    },
-    {
-        "name": "card11",
-        "url": "",
-        "image": "icon3.png",
-        "title": "card11",
-        "zoom": "1",
-        "type": "tile",
-        "section": "top"
-    },
-    {
-        "name": "card57",
-        "url": "https://google.com",
-        "image": "icon2.png",
-        "title": "card57",
-        "zoom": "1",
-        "type": "web",
-        "section": "top"
-    },
-
-    {
-        "name": "card99",
-        "url": "https://google.com",
-        "image": "icon1.png",
-        "title": "card99",
-        "zoom": "1",
-        "type": "web",
-        "section": "card55"
-    },
-
-    {
-        "name": "card102",
-        "url": "",
-        "image": "icon3.png",
-        "title": "card102",
-        "zoom": "1",
-        "type": "file",
-        "section": "card11"
-    },
-    {
-        "name": "card3",
-        "url": "",
-        "image": "icon2.png",
-        "title": "card3",
-        "zoom": "1",
-        "type": "tile",
-        "section": "card11"
-    },
-
-
-    {
-        "name": "card13",
-        "url": "https://google.com",
-        "image": "icon1.png",
-        "title": "card13",
-        "zoom": "1",
-        "type": "web",
-        "section": "card57"
-    },
-    {
-        "name": "card501",
-        "url": "",
-        "image": "icon3.png",
-        "title": "card501",
-        "zoom": "1",
-        "type": "file",
-        "section": "card3"
-    },
-    {
-        "name": "card2",
-        "url": "",
-        "image": "icon2.png",
-        "title": "card2",
-        "zoom": "1",
-        "type": "tile",
-        "section": "card3"
-    },
-
-    {
-        "name": "card1",
-        "url": "https://google.com",
-        "image": "icon1.png",
-        "title": "card1",
-        "zoom": "1",
-        "type": "web",
-        "section": "card2"
-    }
-]
-
-
-makeStructure(translateFromFlatSites(flatListOfCards), document.querySelector('.container').lastElementChild.querySelector('.card-footer>button'), listOfIcons)
