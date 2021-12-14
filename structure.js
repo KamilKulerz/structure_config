@@ -13,6 +13,26 @@ const makeStructure = (obj, baseElement, listOfIconsLocal) => {
     })
 }
 
+function createInputBtn(isTileValue, isCheckedValue, sinceEpoch, typeName){
+
+    let btnInput = document.createElement('input')
+    btnInput.classList.add('btn-check', 'radio-type')
+    btnInput.disabled = isTileValue
+    btnInput.checked = isCheckedValue
+    btnInput.setAttribute('type', 'radio')
+    btnInput.setAttribute('id', `${typeName}-${sinceEpoch}`)
+    btnInput.setAttribute('name', `type-${sinceEpoch}`)
+    let btnLabel = document.createElement('label')
+    btnLabel.classList.add('btn', 'btn-sm', 'btn-secondary')
+    btnLabel.setAttribute('for', `${typeName}-${sinceEpoch}`)
+    btnLabel.innerText = typeName
+
+    return {
+        'button': btnInput,
+        'label': btnLabel
+    }
+}
+
 
 
 
@@ -132,48 +152,17 @@ function createIconCard(iconList, easing = false, cardName = "", cardType = "fil
     btnGroup.classList.add('btn-group')
     btnGroup.setAttribute('role', 'group')
 
-    let btnInput1 = document.createElement('input')
-    btnInput1.classList.add('btn-check', 'radio-type')
-    btnInput1.disabled = isTile
-    btnInput1.checked = isChecked.web
-    btnInput1.setAttribute('type', 'radio')
-    btnInput1.setAttribute('id', `web-${sinceEpoch}`)
-    btnInput1.setAttribute('name', `type-${sinceEpoch}`)
-    let btnLabel1 = document.createElement('label')
-    btnLabel1.classList.add('btn', 'btn-sm', 'btn-secondary')
-    btnLabel1.setAttribute('for', `web-${sinceEpoch}`)
-    btnLabel1.innerText = "web"
 
-    let btnInput2 = document.createElement('input')
-    btnInput2.classList.add('btn-check', 'radio-type')
-    btnInput2.disabled = isTile
-    btnInput2.checked = isChecked.file
-    btnInput2.setAttribute('type', 'radio')
-    btnInput2.setAttribute('id', `file-${sinceEpoch}`)
-    btnInput2.setAttribute('name', `type-${sinceEpoch}`)
-    let btnLabel2 = document.createElement('label')
-    btnLabel2.classList.add('btn', 'btn-sm', 'btn-secondary')
-    btnLabel2.setAttribute('for', `file-${sinceEpoch}`)
-    btnLabel2.innerText = "file"
+    btn1 = createInputBtn(isTile, isChecked.web, sinceEpoch, 'web')
+    btn2 = createInputBtn(isTile, isChecked.file, sinceEpoch, 'file')
+    btn3 = createInputBtn(isTile, isChecked.fileList, sinceEpoch, 'fileList')
 
-    let btnInput3 = document.createElement('input')
-    btnInput3.classList.add('btn-check', 'radio-type')
-    btnInput3.disabled = isTile
-    btnInput3.checked = isChecked.fileList
-    btnInput3.setAttribute('type', 'radio')
-    btnInput3.setAttribute('id', `fileList-${sinceEpoch}`)
-    btnInput3.setAttribute('name', `type-${sinceEpoch}`)
-    let btnLabel3 = document.createElement('label')
-    btnLabel3.classList.add('btn', 'btn-sm', 'btn-secondary')
-    btnLabel3.setAttribute('for', `fileList-${sinceEpoch}`)
-    btnLabel3.innerText = "fileList"
-
-    btnGroup.appendChild(btnInput1)
-    btnGroup.appendChild(btnLabel1)
-    btnGroup.appendChild(btnInput2)
-    btnGroup.appendChild(btnLabel2)
-    btnGroup.appendChild(btnInput3)
-    btnGroup.appendChild(btnLabel3)
+    btnGroup.appendChild(btn1.button)
+    btnGroup.appendChild(btn1.label)
+    btnGroup.appendChild(btn2.button)
+    btnGroup.appendChild(btn2.label)
+    btnGroup.appendChild(btn3.button)
+    btnGroup.appendChild(btn3.label)
 
 
     bodyCol3.appendChild(btnGroup)
